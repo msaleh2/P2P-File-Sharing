@@ -1,3 +1,4 @@
+package edu.ncsu.csc401.client;
 
 public class Client {
 

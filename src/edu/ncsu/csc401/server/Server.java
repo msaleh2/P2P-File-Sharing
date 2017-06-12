@@ -45,9 +45,10 @@ public class Server {
 			} catch (IOException e) {
 				System.out.println(e.getMessage());
 			}
+			new Thread(new P2SConnection(connSocket)).start();
 		}
 		
-		new Thread(new P2SConnection(connSocket)).start();
+		
 	}
 
 	public static void main(String args[]) {

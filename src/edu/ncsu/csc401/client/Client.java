@@ -28,6 +28,7 @@ public class Client extends Thread {
 	    if (serverSocket != null && pw != null && br != null) {
             try {
             	System.out.println("Client: Successfully connected to server");
+            	addAllRFCsOnJoin();
             	int num;
 				do {
             		num = listCommands();
@@ -63,6 +64,7 @@ public class Client extends Thread {
 		        serverSocket.close();
 		        pw.close();
 		        br.close();
+		        break;
     		default:
     			System.out.println("Client: Invalid Command");  
     			listCommands();
@@ -70,7 +72,7 @@ public class Client extends Thread {
     	return choice;
 	}
 
-	private void addAllRFCsOnJoin() {
+	private static void addAllRFCsOnJoin() {
 		//TODO
 	}
 	
@@ -107,6 +109,7 @@ public class Client extends Thread {
 		pw.println(message);
 		System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
+        //buggy here?
         while ((serverResponse = br.readLine()) != null) {
             System.out.println("Server: " + serverResponse);
         }
@@ -122,8 +125,13 @@ public class Client extends Thread {
 		pw.println(message);
 		System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
+        //buggy here?
         while ((serverResponse = br.readLine()) != null) {
             System.out.println("Server: " + serverResponse);
         }
+	}
+	
+	private static void downloadRFCFromPeer() {
+		//TODO
 	}
 }

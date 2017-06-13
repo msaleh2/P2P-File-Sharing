@@ -23,6 +23,11 @@ public class Server extends Thread {
 	private static ArrayList<Peer> peers;
 	private static ArrayList<RFC> rfcIndex;
 	private Socket cSocket;
+	
+	private static final int OK = 200;
+	private static final int BAD_REQUEST = 400;
+	private static final int NOT_FOUND = 404;
+	private static final int VERSION_NOT_SUPPORTED = 505;
 
 	public static void main(String args[]) {
 		peers = new ArrayList<Peer>();
@@ -114,24 +119,78 @@ public class Server extends Thread {
 						}
 
 					} else if (cmd.equals("LOOKUP")) {
-						
 						scan.next();
 						rfc = scan.nextInt();
 						version = scan.next();
-						
+
 						lineIn = input.readLine();
 						scan = new Scanner(lineIn);
-						
 						scan.next();
 						hostName = scan.next();
+
+						lineIn = input.readLine();
+						scan = new Scanner(lineIn);
+						scan.next();
+						portNumber = scan.nextInt();
 						
 						lineIn = input.readLine();
 						scan = new Scanner(lineIn);
+						scan.next();
+						rfcTitle = scan.nextLine();
 						
+						ArrayList<RFC> search = new ArrayList<RFC>();
+						for (int i = 0; i < rfcIndex.size(); i++) {
+							if (rfcIndex.get(i).getRfcNumber() == rfc) {
+								search.add(rfcIndex.get(i));
+							}							
+						}
+						if(search.size() == 0) {
+							output.println(version + " " + NOT_FOUND + " Not Found");
+						} else if (search.size() > 0) {
+							output.println(version + " " + OK + " OK");
+							for(int j = 0; j < search.size(); j++) {
+								output.println("RFC " + search.get(j).getRfcNumber() + " "
+										+ search.get(j).getTitle() + " " 
+										+ search.get(j).getPeer().getHostName() + " " 
+										+ search.get(j).getPeer().getPort());
+							}
+						}
+						System.out.println("Returned " + search.size() + " result");
 						
-
 					} else if (cmd.equals("LIST")) {
+						scan.next();
+						rfc = scan.nextInt();
+						version = scan.next();
 
+						lineIn = input.readLine();
+						scan = new Scanner(lineIn);
+						scan.next();
+						hostName = scan.next();
+
+						lineIn = input.readLine();
+						scan = new Scanner(lineIn);
+						scan.next();
+						portNumber = scan.nextInt();
+						
+						ArrayList<RFC> search = new ArrayList<RFC>();
+						for (int i = 0; i < rfcIndex.size(); i++) {
+							if (rfcIndex.get(i).getRfcNumber() == rfc) {
+								search.add(rfcIndex.get(i));
+							}							
+						}
+						if(search.size() == 0) {
+							output.println(version + " " + NOT_FOUND + " Not Found");
+						} else if (search.size() > 0) {
+							output.println(version + " " + OK + " OK");
+							for(int j = 0; j < search.size(); j++) {
+								output.println("RFC " + search.get(j).getRfcNumber() + " "
+										+ search.get(j).getTitle() + " " 
+										+ search.get(j).getPeer().getHostName() + " " 
+										+ search.get(j).getPeer().getPort());
+							}
+						}
+						System.out.println("Returned " + search.size() + " result");
+						
 					} else {
 						System.err.println("Invalid Command.");
 						cSocket.close();

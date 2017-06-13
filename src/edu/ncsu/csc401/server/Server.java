@@ -70,12 +70,10 @@ public class Server extends Thread {
 		Scanner scan = null;
 
 		try {
-			output = new PrintWriter(cSocket.getOutputStream());
+			output = new PrintWriter(cSocket.getOutputStream(), true);
 			input = new BufferedReader(new InputStreamReader(cSocket.getInputStream()));
 
 			while (connected) {
-				System.out.println(input.readLine());
-				/**
 				if ((lineIn = input.readLine()) != null) {
 					scan = new Scanner(lineIn);
 					cmd = scan.next();
@@ -140,14 +138,12 @@ public class Server extends Thread {
 						connected = false;
 					}
 				}
-				*/
 			}
 		} catch (IOException e) {
 			System.err.println("Problem with connection.");
 			try {
 				cSocket.close();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}

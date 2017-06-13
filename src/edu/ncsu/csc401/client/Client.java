@@ -12,8 +12,8 @@ public class Client extends Thread {
 	public static void main(String[] args) {
 		//Try to open a connection to the server
 		Socket serverSocket = null;
-        //String hostName = "127.0.0.1";
-        String hostName = "10.139.83.66";
+        String hostName = "127.0.0.1";
+        //String hostName = "10.139.83.66";
         try {
             serverSocket = new Socket(hostName, 7733);
             pw = new PrintWriter(serverSocket.getOutputStream(), true);
@@ -27,7 +27,6 @@ public class Client extends Thread {
         
 	    if (serverSocket != null && pw != null && br != null) {
             try {
-            	pw.write("Client: Client has connected to you");
             	System.out.println("Client: Successfully connected to server");
             	listCommands();
 		        String serverResponse;
@@ -83,8 +82,8 @@ public class Client extends Thread {
 		System.out.println("Client: Enter Title");
 		String title = sc.nextLine();
 		String message = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
-				+ hostname + "\nPort: " + port + "\nTitle: " + title + "\n";
-		pw.write(message);
+				+ hostname + "\nPort: " + port + "\nTitle: " + title;
+		pw.println(message);
 		System.out.println("Client: You sent this message:\n" + message);
 	}
 

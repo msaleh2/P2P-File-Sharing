@@ -48,6 +48,7 @@ public class Client extends Thread {
     	System.out.println("Client: 3. LIST ALL RFC'S AVAILABLE");
     	System.out.println("Client: 4. TERMINATE CONNECTION");
     	int choice = sc.nextInt();
+    	sc.nextLine();
     	switch(choice) {
     		case 1:
     			addRFC(sc);

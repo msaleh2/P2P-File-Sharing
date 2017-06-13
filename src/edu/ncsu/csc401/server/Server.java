@@ -159,7 +159,6 @@ public class Server extends Thread {
 						
 					} else if (cmd.equals("LIST")) {
 						scan.next();
-						rfc = scan.nextInt();
 						version = scan.next();
 
 						lineIn = input.readLine();
@@ -172,24 +171,18 @@ public class Server extends Thread {
 						scan.next();
 						portNumber = scan.nextInt();
 						
-						ArrayList<RFC> search = new ArrayList<RFC>();
-						for (int i = 0; i < rfcIndex.size(); i++) {
-							if (rfcIndex.get(i).getRfcNumber() == rfc) {
-								search.add(rfcIndex.get(i));
-							}							
-						}
-						if(search.size() == 0) {
+						if(rfcIndex.size() == 0) {
 							output.println(version + " " + NOT_FOUND + " Not Found");
-						} else if (search.size() > 0) {
+						} else if (rfcIndex.size() > 0) {
 							output.println(version + " " + OK + " OK");
-							for(int j = 0; j < search.size(); j++) {
-								output.println("RFC " + search.get(j).getRfcNumber() + " "
-										+ search.get(j).getTitle() + " " 
-										+ search.get(j).getPeer().getHostName() + " " 
-										+ search.get(j).getPeer().getPort());
+							for(int j = 0; j < rfcIndex.size(); j++) {
+								output.println("RFC " + rfcIndex.get(j).getRfcNumber() + " "
+										+ rfcIndex.get(j).getTitle() + " " 
+										+ rfcIndex.get(j).getPeer().getHostName() + " " 
+										+ rfcIndex.get(j).getPeer().getPort());
 							}
 						}
-						System.out.println("Returned " + search.size() + " result");
+						System.out.println("Returned " + rfcIndex.size() + " result");
 						
 					} else {
 						System.err.println("Invalid Command.");

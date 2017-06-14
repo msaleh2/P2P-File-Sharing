@@ -2,9 +2,10 @@ package edu.ncsu.csc401.client;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Client extends Thread {
+public class Client {
 	
 	private static Socket serverSocket = null;
 	private static PrintWriter pw = null;
@@ -47,7 +48,8 @@ public class Client extends Thread {
     	System.out.println("Client: 1. ADD RFC TO SERVER");
     	System.out.println("Client: 2. LOOKUP RFC");
     	System.out.println("Client: 3. LIST ALL RFC'S AVAILABLE");
-    	System.out.println("Client: 4. TERMINATE CONNECTION");
+    	System.out.println("Client: 4. GET RFC FROM PEER");
+    	System.out.println("Client: 5. TERMINATE CONNECTION");
     	int choice = sc.nextInt();
     	sc.nextLine();
     	switch(choice) {
@@ -61,6 +63,9 @@ public class Client extends Thread {
     			listAllRFC(sc);
     			break;
     		case 4:
+    			downloadRFCFromPeer(sc);
+    			break;
+    		case 5:
 		        serverSocket.close();
 		        pw.close();
 		        br.close();
@@ -81,7 +86,7 @@ public class Client extends Thread {
 		int rfc = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Client: Enter hostname");
-		String hostname = sc.nextLine();
+		String hostname = sc.nextLine(); 
 		System.out.println("Client: Enter port");
 		int port = sc.nextInt();
 		sc.nextLine();
@@ -109,7 +114,7 @@ public class Client extends Thread {
 		pw.println(message);
 		System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
-        //buggy here?
+        //TODO: fix bug
         while ((serverResponse = br.readLine()) != null) {
             System.out.println("Server: " + serverResponse);
         }
@@ -125,13 +130,73 @@ public class Client extends Thread {
 		pw.println(message);
 		System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
-        //buggy here?
+        //TODO: fix bug
         while ((serverResponse = br.readLine()) != null) {
             System.out.println("Server: " + serverResponse);
         }
 	}
 	
-	private static void downloadRFCFromPeer() {
-		//TODO
+	//TODO: clients need to always be listening for peer connections.
+	private static void downloadRFCFromPeer(Scanner sc) throws IOException {
+		//1. open connection to peer at specified port
+		System.out.println("Client: Enter RFC");
+		int rfc = sc.nextInt();
+		sc.nextLine();
+		System.out.println("Client: Enter hostname");
+		String hostname = sc.nextLine();
+		System.out.println("Client: Enter port");
+		int port = sc.nextInt();
+		sc.nextLine();
+		
+		Socket clientSocket = null;
+		PrintWriter pwClient = null;
+		BufferedReader brClient = null;
+        try {
+            clientSocket = new Socket(hostname, port);
+            pwClient = new PrintWriter(clientSocket.getOutputStream(), true);
+            brClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            if (clientSocket != null && brClient != null) {
+                System.out.println("Client: Successfully connected to peer");
+            }
+        } catch (UnknownHostException e) {
+            System.err.println("cannot connect to hostname");
+        } catch (IOException e) {
+            System.err.println("problem with reader");
+        }        
+
+		//2. request rfc
+		String os = System.getProperty("os.name");
+		String message = "GET RFC " + rfc + " P2P-CI/1.0\nHost: " + hostname 
+				+ "\nOS: " + os;
+		pwClient.println(message);
+		
+		//3. receive file
+		String serverResponse;
+        //TODO: fix bug
+        while ((serverResponse = br.readLine()) != null) {
+            System.out.println("Server: " + serverResponse);
+        	if(serverResponse.startsWith("Content-Type:")) {
+        		break; //exit and start writing data to array
+        	}
+        }
+        
+        ArrayList<String> data = new ArrayList<String>();
+        //TODO: fix bug
+        while ((serverResponse = br.readLine()) != null) {
+        	data.add(serverResponse);
+        }
+        
+		//4. store file
+        PrintWriter fileWriter = new PrintWriter(Integer.toString(rfc) + ".txt", "UTF-8");
+		//TODO: we need directory structure
+        for(int i = 0; i < data.size(); i++) {
+			fileWriter.println(data.get(i));
+		}
+		
+		//5. close connection
+		fileWriter.close();
+		clientSocket.close();
+		pwClient.close();
+		brClient.close();
 	}
 }

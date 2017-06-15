@@ -10,10 +10,11 @@ public class Client {
 	private static Socket serverSocket = null;
 	private static PrintWriter pw = null;
 	private static BufferedReader br = null;
+	private static String hostName = "127.0.0.1";
 
 	public static void main(String[] args) {
 		//Try to open a connection to the server
-        String hostName = "127.0.0.1";
+ 
         //String hostName = "10.139.83.66";
         try {
             serverSocket = new Socket(hostName, 7733);
@@ -33,7 +34,7 @@ public class Client {
             	int num;
 				do {
             		num = listCommands();
-            	} while(num != 4);
+            	} while(num != 5);
 		    } catch (UnknownHostException e) {
 		        System.err.println("Trying to connect to unknown host: " + e);
 		    } catch (IOException e) {
@@ -66,9 +67,11 @@ public class Client {
     			downloadRFCFromPeer(sc);
     			break;
     		case 5:
+    			pw.println("CLOSE " + hostName);
 		        serverSocket.close();
 		        pw.close();
 		        br.close();
+		        System.out.println("Client: Disconnected.");
 		        break;
     		default:
     			System.out.println("Client: Invalid Command");  
@@ -85,54 +88,50 @@ public class Client {
 		System.out.println("Client: Enter RFC");
 		int rfc = sc.nextInt();
 		sc.nextLine();
-		System.out.println("Client: Enter hostname");
-		String hostname = sc.nextLine(); 
 		System.out.println("Client: Enter port");
 		int port = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Client: Enter Title");
 		String title = sc.nextLine();
 		String message = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
-				+ hostname + "\nPort: " + port + "\nTitle: " + title;
+				+ hostName + "\nPort: " + port + "\nTitle: " + title;
 		pw.println(message);
-		System.out.println("Client: You sent this message:\n" + message);
+		//System.out.println("Client: You sent this message:\n" + message);
 	}
 
 	private static void lookupRFC(Scanner sc) throws IOException {
 		System.out.println("Client: Enter RFC");
 		int rfc = sc.nextInt();
 		sc.nextLine();
-		System.out.println("Client: Enter hostname");
-		String hostname = sc.nextLine();
 		System.out.println("Client: Enter port");
 		int port = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Client: Enter Title");
 		String title = sc.nextLine();
-		String message = "LOOKUP RFC " + rfc + " P2P-CI/1.0\nHost: " + hostname
+		String message = "LOOKUP RFC " + rfc + " P2P-CI/1.0\nHost: " + hostName
 				+ "\nPort: " + port + "\nTitle: " + title;
 		pw.println(message);
-		System.out.println("Client: You sent this message:\n" + message);
+		//System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
-        //TODO: fix bug
-        while ((serverResponse = br.readLine()) != null) {
+        serverResponse = br.readLine();
+        while (!serverResponse.equals("-1")) {
             System.out.println("Server: " + serverResponse);
+            serverResponse = br.readLine();
         }
 	}
 	
 	private static void listAllRFC(Scanner sc) throws IOException {
-		System.out.println("Client: Enter hostname");
-		String hostname = sc.nextLine();
 		System.out.println("Client: Enter port");
 		int port = sc.nextInt();
 		sc.nextLine();
-		String message = "LIST ALL P2P-CI/1.0\nHost: " + hostname + "\nPort: " + port;
+		String message = "LIST ALL P2P-CI/1.0\nHost: " + hostName + "\nPort: " + port;
 		pw.println(message);
-		System.out.println("Client: You sent this message:\n" + message);
+		//System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
-        //TODO: fix bug
-        while ((serverResponse = br.readLine()) != null) {
+        serverResponse = br.readLine();
+        while (!serverResponse.equals("-1")) {
             System.out.println("Server: " + serverResponse);
+            serverResponse = br.readLine();
         }
 	}
 	

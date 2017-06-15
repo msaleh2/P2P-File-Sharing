@@ -156,7 +156,7 @@ public class Server extends Thread {
 							}
 						}
 						System.out.println("Returned " + search.size() + " result");
-						
+						output.println("-1");
 					} else if (cmd.equals("LIST")) {
 						scan.next();
 						version = scan.next();
@@ -183,6 +183,10 @@ public class Server extends Thread {
 							}
 						}
 						System.out.println("Returned " + rfcIndex.size() + " result");
+						output.println("-1");
+					} else if(cmd.equals("CLOSE")) {
+						hostName = scan.next();
+						connected = false;
 						
 					} else {
 						System.err.println("Invalid Command.");
@@ -194,11 +198,23 @@ public class Server extends Thread {
 		} catch (IOException e) {
 			System.err.println("Problem with connection.");
 			try {
+				output.close();
+				input.close();
 				cSocket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
-
+		for(int i = 0; i < rfcIndex.size(); i++){
+			if(rfcIndex.get(i).getPeer().getHostName().equals(hostName)){
+				rfcIndex.remove(i);
+			}
+		}
+		for(int i = 0; i < peers.size(); i++){
+			if(peers.get(i).getHostName().equals(hostName)){
+				peers.remove(i);
+			}
+		}
+		System.out.println("Client disconnected: " + hostName);
 	}
 }

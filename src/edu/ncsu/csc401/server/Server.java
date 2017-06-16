@@ -77,7 +77,11 @@ public class Server extends Thread {
 		try {
 			output = new PrintWriter(cSocket.getOutputStream(), true);
 			input = new BufferedReader(new InputStreamReader(cSocket.getInputStream()));
-
+			
+			String init = input.readLine();
+			scan = new Scanner(init);
+			peers.add(new Peer(scan.next(), scan.nextInt()));
+			
 			while (connected) {
 				if ((lineIn = input.readLine()) != null) {
 					scan = new Scanner(lineIn);
@@ -106,19 +110,14 @@ public class Server extends Thread {
 						scan.next();
 						rfcTitle = scan.nextLine();
 
-						boolean peerFound = false;
-						
-						//TODO fix logic
-						for (int i = 0; i < peers.size(); i++) {
-							if (peers.get(i).getHostName().equals(hostName)) {
-								peerFound = true;
+						Peer p = null;
+						for(int i = 0; i < peers.size(); i++){
+							if(peers.get(i).getHostName().equals(hostName) && peers.get(i).getPort() == portNumber){
+								p = peers.get(i);
+								break;
 							}
 						}
-						if (!peerFound) {
-							peers.add(new Peer(hostName, portNumber));
-							rfcIndex.add(new RFC(rfc, rfcTitle, peers.get(peers.size() - 1)));
-							System.out.println("New RFC added. RFC: " + rfc + " Peer: " + hostName);
-						}
+						rfcIndex.add(new RFC(rfc, rfcTitle, p));
 
 					} else if (cmd.equals("LOOKUP")) {
 						scan.next();
@@ -208,12 +207,12 @@ public class Server extends Thread {
 			}
 		}
 		for(int i = 0; i < rfcIndex.size(); i++){
-			if(rfcIndex.get(i).getPeer().getHostName().equals(hostName)){
+			if(rfcIndex.get(i).getPeer().getHostName().equals(cSocket.getInetAddress().getHostAddress())){
 				rfcIndex.remove(i);
 			}
 		}
 		for(int i = 0; i < peers.size(); i++){
-			if(peers.get(i).getHostName().equals(hostName)){
+			if(peers.get(i).getHostName().equals(cSocket.getInetAddress().getHostAddress())){
 				peers.remove(i);
 			}
 		}

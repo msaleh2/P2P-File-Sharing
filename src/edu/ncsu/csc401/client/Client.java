@@ -11,9 +11,10 @@ public class Client extends Thread {
 	private static Socket serverSocket = null;
 	private static PrintWriter pw = null;
 	private static BufferedReader br = null;
+	//private static String serverHostName = "10.139.243.180";
 	private static String serverHostName = "127.0.0.1";
 	private static String hostName = null;
-	private int lPort;
+	private static int lPort;
 
 	public static void main(String[] args) {
 		//Try to open a connection to the server
@@ -37,6 +38,7 @@ public class Client extends Thread {
 	    if (serverSocket != null && pw != null && br != null) {
             try {
             	System.out.println("Client: Successfully connected to server");
+            	pw.println(hostName + lPort);
             	addAllRFCsOnJoin();
             	int num;
 				do {
@@ -88,7 +90,22 @@ public class Client extends Thread {
 	}
 
 	private static void addAllRFCsOnJoin() {
-		//TODO
+		File folder = new File("rfcs");
+		File[] rfcFiles = folder.listFiles();
+		
+	    for (int i = 0; i < rfcFiles.length; i++) {
+	      if (rfcFiles[i].isFile()) {
+	        String rfc = rfcFiles[i].getName();
+	        
+	        //TODO: where to get title?
+	        String title = "";
+	        
+	        String message = "ADD RFC " + rfc.substring(0, rfc.length()-4) + " P2P-CI/1.0\nHost: "
+					+ hostName + "\nPort: " + lPort + "\nTitle: " + title;
+			System.out.println("Client: " + message);
+	        pw.println(message);
+	      }
+	    }
 	}
 	
 	private static void addRFC(Scanner sc, int listenPort) {

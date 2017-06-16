@@ -3,21 +3,24 @@ package edu.ncsu.csc401.client;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
-public class Client {
+public class Client extends Thread {
 	
 	private static Socket serverSocket = null;
 	private static PrintWriter pw = null;
 	private static BufferedReader br = null;
-	private static String hostName = "127.0.0.1";
+	private static String serverHostName = "127.0.0.1";
+	private static String hostName = null;
+	private int lPort;
 
 	public static void main(String[] args) {
 		//Try to open a connection to the server
  
         //String hostName = "10.139.83.66";
         try {
-            serverSocket = new Socket(hostName, 7733);
+            serverSocket = new Socket(serverHostName, 7733);
             pw = new PrintWriter(serverSocket.getOutputStream(), true);
             br = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
         } catch (UnknownHostException e) {
@@ -25,7 +28,11 @@ public class Client {
         } catch (IOException e) {
             System.err.println("problem with writer/reader");
         }
+        hostName = serverSocket.getLocalAddress().getHostName();
         
+        Random rand = new Random();
+        int listenPort = rand.nextInt(58000) + 2000;
+        new Client(listenPort).start(); //start listening for connections
         
 	    if (serverSocket != null && pw != null && br != null) {
             try {
@@ -33,7 +40,7 @@ public class Client {
             	addAllRFCsOnJoin();
             	int num;
 				do {
-            		num = listCommands();
+            		num = listCommands(listenPort);
             	} while(num != 5);
 		    } catch (UnknownHostException e) {
 		        System.err.println("Trying to connect to unknown host: " + e);
@@ -43,7 +50,7 @@ public class Client {
         }
     }
 	
-	private static int listCommands() throws IOException {
+	private static int listCommands(int listenPort) throws IOException {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Client: Choose an option");
     	System.out.println("Client: 1. ADD RFC TO SERVER");
@@ -55,13 +62,13 @@ public class Client {
     	sc.nextLine();
     	switch(choice) {
     		case 1:
-    			addRFC(sc);
+    			addRFC(sc, listenPort);
     			break;
     		case 2:
-    			lookupRFC(sc);
+    			lookupRFC(sc, listenPort);
     			break;
     		case 3:
-    			listAllRFC(sc);
+    			listAllRFC(sc, listenPort);
     			break;
     		case 4:
     			downloadRFCFromPeer(sc);
@@ -75,7 +82,7 @@ public class Client {
 		        break;
     		default:
     			System.out.println("Client: Invalid Command");  
-    			listCommands();
+    			listCommands(listenPort);
     	}
     	return choice;
 	}
@@ -84,32 +91,26 @@ public class Client {
 		//TODO
 	}
 	
-	private static void addRFC(Scanner sc) {
+	private static void addRFC(Scanner sc, int listenPort) {
 		System.out.println("Client: Enter RFC");
 		int rfc = sc.nextInt();
-		sc.nextLine();
-		System.out.println("Client: Enter port");
-		int port = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Client: Enter Title");
 		String title = sc.nextLine();
 		String message = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
-				+ hostName + "\nPort: " + port + "\nTitle: " + title;
+				+ hostName + "\nPort: " + listenPort + "\nTitle: " + title;
 		pw.println(message);
 		//System.out.println("Client: You sent this message:\n" + message);
 	}
 
-	private static void lookupRFC(Scanner sc) throws IOException {
+	private static void lookupRFC(Scanner sc, int listenPort) throws IOException {
 		System.out.println("Client: Enter RFC");
 		int rfc = sc.nextInt();
-		sc.nextLine();
-		System.out.println("Client: Enter port");
-		int port = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Client: Enter Title");
 		String title = sc.nextLine();
 		String message = "LOOKUP RFC " + rfc + " P2P-CI/1.0\nHost: " + hostName
-				+ "\nPort: " + port + "\nTitle: " + title;
+				+ "\nPort: " + listenPort + "\nTitle: " + title;
 		pw.println(message);
 		//System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
@@ -120,11 +121,8 @@ public class Client {
         }
 	}
 	
-	private static void listAllRFC(Scanner sc) throws IOException {
-		System.out.println("Client: Enter port");
-		int port = sc.nextInt();
-		sc.nextLine();
-		String message = "LIST ALL P2P-CI/1.0\nHost: " + hostName + "\nPort: " + port;
+	private static void listAllRFC(Scanner sc, int listenPort) throws IOException {
+		String message = "LIST ALL P2P-CI/1.0\nHost: " + hostName + "\nPort: " + listenPort;
 		pw.println(message);
 		//System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
@@ -197,5 +195,28 @@ public class Client {
 		clientSocket.close();
 		pwClient.close();
 		brClient.close();
+	}
+	
+	public Client(int portNumber) {
+		lPort = portNumber;
+	}
+	
+	//listens for connections from peers
+	public void run() {
+		boolean listening = true;
+		try {
+			ServerSocket listener = new ServerSocket(lPort);
+			Socket connection = null;
+			
+			while(listening){
+				connection = listener.accept();
+				PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
+				BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				System.out.println("New client thread: Connected.");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

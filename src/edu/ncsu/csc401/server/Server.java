@@ -107,6 +107,8 @@ public class Server extends Thread {
 						rfcTitle = scan.nextLine();
 
 						boolean peerFound = false;
+						
+						//TODO fix logic
 						for (int i = 0; i < peers.size(); i++) {
 							if (peers.get(i).getHostName().equals(hostName)) {
 								peerFound = true;

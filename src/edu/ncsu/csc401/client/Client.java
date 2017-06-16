@@ -38,7 +38,7 @@ public class Client extends Thread {
 	    if (serverSocket != null && pw != null && br != null) {
             try {
             	System.out.println("Client: Successfully connected to server");
-            	pw.println(hostName + lPort);
+            	pw.println(hostName + " " + listenPort);
             	addAllRFCsOnJoin();
             	int num;
 				do {

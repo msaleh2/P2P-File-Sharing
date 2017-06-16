@@ -28,7 +28,7 @@ public class Client extends Thread {
         } catch (IOException e) {
             System.err.println("problem with writer/reader");
         }
-        hostName = serverSocket.getLocalAddress().getHostName();
+        hostName = serverSocket.getLocalAddress().getHostAddress();
         
         Random rand = new Random();
         int listenPort = rand.nextInt(58000) + 2000;

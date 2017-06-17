@@ -2,7 +2,9 @@ package edu.ncsu.csc401.client;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -12,14 +14,17 @@ public class Client extends Thread {
 	private static PrintWriter pw = null;
 	private static BufferedReader br = null;
 	//private static String serverHostName = "10.139.243.180";
-	private static String serverHostName = "127.0.0.1";
+	private static String serverHostName;
 	private static String hostName = null;
 	private static int lPort;
+	private final String VERSION = "P2P-CI/1.0";
+	private final String OS = System.getProperty("os.name");
 
 	public static void main(String[] args) {
 		//Try to open a connection to the server
  
         //String hostName = "10.139.83.66";
+		serverHostName = args[0];
         try {
             serverSocket = new Socket(serverHostName, 7733);
             pw = new PrintWriter(serverSocket.getOutputStream(), true);
@@ -187,28 +192,36 @@ public class Client extends Thread {
 		//3. receive file
 		String serverResponse;
         //TODO: fix bug
-        while ((serverResponse = br.readLine()) != null) {
-            System.out.println("Server: " + serverResponse);
-        	if(serverResponse.startsWith("Content-Type:")) {
-        		break; //exit and start writing data to array
-        	}
-        }
-        
-        ArrayList<String> data = new ArrayList<String>();
-        //TODO: fix bug
-        while ((serverResponse = br.readLine()) != null) {
-        	data.add(serverResponse);
-        }
-        
-		//4. store file
-        PrintWriter fileWriter = new PrintWriter(Integer.toString(rfc) + ".txt", "UTF-8");
-		//TODO: we need directory structure
-        for(int i = 0; i < data.size(); i++) {
-			fileWriter.println(data.get(i));
+		serverResponse = br.readLine();
+		Scanner scan = new Scanner(serverResponse);
+		String version = scan.next();
+		BufferedWriter toFile = null;
+		if(!version.equals("Error:")){
+			scan.nextLine();
+			scan = new Scanner(br.readLine());
+			String date = scan.nextLine();
+			scan = new Scanner(br.readLine());
+			String serverOs = scan.nextLine();
+			scan = new Scanner(br.readLine());
+			String lastMod = scan.nextLine();
+			scan = new Scanner(br.readLine());
+			String contentLength = scan.nextLine();
+			scan = new Scanner(br.readLine());
+			String contentType = scan.nextLine();
+			
+			File rfcFile = new File(rfc + ".txt");
+			toFile = new BufferedWriter(new FileWriter(rfcFile));
+			while(!(serverResponse = br.readLine()).equals("-1")){
+				toFile.write(serverResponse);
+			}
+			
+		} else {
+			System.err.println(serverResponse);
 		}
 		
+		
 		//5. close connection
-		fileWriter.close();
+		toFile.close();
 		clientSocket.close();
 		pwClient.close();
 		brClient.close();
@@ -229,7 +242,69 @@ public class Client extends Thread {
 				connection = listener.accept();
 				PrintWriter output = new PrintWriter(connection.getOutputStream(), true);
 				BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-				System.out.println("New client thread: Connected.");
+				System.out.println("Peer connected: " + listener.getInetAddress().getHostAddress());
+				String lineIn = input.readLine();
+				Scanner scan = new Scanner(lineIn);
+				if(scan.next().equals("GET")){
+					scan.next();
+					int rfc = scan.nextInt();
+					String cVersion = scan.nextLine();
+					lineIn = input.readLine();
+					scan = new Scanner(lineIn);
+					scan.next();
+					String destHost = scan.nextLine();
+					lineIn = input.readLine();
+					scan = new Scanner(lineIn);
+					scan.next();
+					String os = scan.nextLine();
+					
+					boolean fileFound = false;
+					File fileOut = null;
+					File folder = new File("rfcs");
+					File[] rfcFiles = folder.listFiles();
+					
+				    for (int i = 0; i < rfcFiles.length; i++) {
+				      if (rfcFiles[i].isFile()) {
+				        String fileName = rfcFiles[i].getName();
+				        scan = new Scanner(fileName);
+				        if(scan.nextInt() == rfc){
+				        	fileOut = rfcFiles[i];
+				        	fileFound = true;
+				        	break;
+				        }
+				      }
+				    }
+				    
+				    if(!fileFound) {
+				    	System.err.println("Error 404: Requested file not found.");
+				    }
+					
+					String message;
+					if(cVersion.equals(VERSION)) {
+						message = VERSION + " 200 OK\n";
+					} else {
+						System.err.println("Error 505: P2P-CI Version Not Supported ");
+						break;
+					}
+					message += "Date: " + new Date().toString() + "\n";
+					message += "OS: " + OS + "\n";
+					message += "Last Modified: " + new Date(fileOut.lastModified()).toString() + "\n";
+					message += "Content Length: " + fileOut.length() + "\n";
+					message += "Content Type: text/text\n";
+					scan = new Scanner(fileOut);
+					StringBuilder sb = new StringBuilder();
+					sb.append(message);
+					
+					while(scan.hasNextLine()){
+						sb.append(scan.nextLine());
+					}
+					
+					output.println(sb.toString());
+					output.println("-1");
+				} else {
+					System.err.println("Error 400: Invalid request");
+					listening = false;
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

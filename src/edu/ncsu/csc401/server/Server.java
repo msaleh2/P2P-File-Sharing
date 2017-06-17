@@ -80,7 +80,9 @@ public class Server extends Thread {
 			
 			String init = input.readLine();
 			scan = new Scanner(init);
-			peers.add(new Peer(scan.next(), scan.nextInt()));
+			hostName = scan.next();
+			portNumber = scan.nextInt();
+			peers.add(new Peer(hostName, portNumber));
 			
 			while (connected) {
 				if ((lineIn = input.readLine()) != null) {
@@ -207,7 +209,7 @@ public class Server extends Thread {
 			}
 		}
 		for(int i = 0; i < rfcIndex.size(); i++){
-			if(rfcIndex.get(i).getPeer().getHostName().equals(cSocket.getInetAddress().getHostAddress())){
+			if(rfcIndex.get(i).getPeer().getHostName().equals(hostName)){
 				rfcIndex.remove(i);
 			}
 		}

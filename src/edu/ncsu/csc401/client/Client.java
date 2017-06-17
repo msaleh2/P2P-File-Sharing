@@ -209,9 +209,11 @@ public class Client extends Thread {
 			scan = new Scanner(br.readLine());
 			String contentType = scan.nextLine();
 			
-			File rfcFile = new File(rfc + ".txt");
+			File rfcFile = new File("rfcs/test.txt");
+			rfcFile.createNewFile();
 			toFile = new BufferedWriter(new FileWriter(rfcFile));
 			while(!(serverResponse = br.readLine()).equals("-1")){
+				System.out.println(serverResponse);
 				toFile.write(serverResponse);
 			}
 			
@@ -262,12 +264,13 @@ public class Client extends Thread {
 					File fileOut = null;
 					File folder = new File("rfcs");
 					File[] rfcFiles = folder.listFiles();
-					
+					System.out.println(rfcFiles.length + " files found.");
 				    for (int i = 0; i < rfcFiles.length; i++) {
 				      if (rfcFiles[i].isFile()) {
 				        String fileName = rfcFiles[i].getName();
 				        scan = new Scanner(fileName);
-				        if(scan.nextInt() == rfc){
+				        System.out.println(fileName);
+				        if(fileName.equals("1234.txt")) {
 				        	fileOut = rfcFiles[i];
 				        	fileFound = true;
 				        	break;
@@ -280,12 +283,17 @@ public class Client extends Thread {
 				    }
 					
 					String message;
+					/**
 					if(cVersion.equals(VERSION)) {
-						message = VERSION + " 200 OK\n";
+						
 					} else {
 						System.err.println("Error 505: P2P-CI Version Not Supported ");
 						break;
 					}
+					*/
+					
+					
+					message = VERSION + " 200 OK\n";
 					message += "Date: " + new Date().toString() + "\n";
 					message += "OS: " + OS + "\n";
 					message += "Last Modified: " + new Date(fileOut.lastModified()).toString() + "\n";
@@ -296,11 +304,12 @@ public class Client extends Thread {
 					sb.append(message);
 					
 					while(scan.hasNextLine()){
-						sb.append(scan.nextLine());
+						sb.append(scan.nextLine() + "\n");
 					}
 					
 					output.println(sb.toString());
 					output.println("-1");
+					scan.close();
 				} else {
 					System.err.println("Error 400: Invalid request");
 					listening = false;

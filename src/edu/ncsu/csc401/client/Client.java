@@ -192,30 +192,32 @@ public class Client extends Thread {
 		//3. receive file
 		String serverResponse;
         //TODO: fix bug
-		serverResponse = br.readLine();
+		serverResponse = brClient.readLine();
 		Scanner scan = new Scanner(serverResponse);
 		String version = scan.next();
-		BufferedWriter toFile = null;
+		PrintWriter toFile = null;
 		if(!version.equals("Error:")){
 			scan.nextLine();
-			scan = new Scanner(br.readLine());
+			scan = new Scanner(brClient.readLine());
 			String date = scan.nextLine();
-			scan = new Scanner(br.readLine());
+			scan = new Scanner(brClient.readLine());
 			String serverOs = scan.nextLine();
-			scan = new Scanner(br.readLine());
+			scan = new Scanner(brClient.readLine());
 			String lastMod = scan.nextLine();
-			scan = new Scanner(br.readLine());
+			scan = new Scanner(brClient.readLine());
 			String contentLength = scan.nextLine();
-			scan = new Scanner(br.readLine());
+			scan = new Scanner(brClient.readLine());
 			String contentType = scan.nextLine();
 			
-			File rfcFile = new File("rfcs/test.txt");
-			rfcFile.createNewFile();
-			toFile = new BufferedWriter(new FileWriter(rfcFile));
-			while(!(serverResponse = br.readLine()).equals("-1")){
+			toFile = new PrintWriter("rfcs/" + rfc + ".txt", "UTF-8");
+			while(!(serverResponse = brClient.readLine()).equals("-1")){
 				System.out.println(serverResponse);
-				toFile.write(serverResponse);
+				toFile.println(serverResponse);
 			}
+			
+			String addNewRfc = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
+					+ hostName + "\nPort: " + lPort + "\nTitle: " + "";
+			pw.println(message);
 			
 		} else {
 			System.err.println(serverResponse);
@@ -268,9 +270,7 @@ public class Client extends Thread {
 				    for (int i = 0; i < rfcFiles.length; i++) {
 				      if (rfcFiles[i].isFile()) {
 				        String fileName = rfcFiles[i].getName();
-				        scan = new Scanner(fileName);
-				        System.out.println(fileName);
-				        if(fileName.equals("1234.txt")) {
+				        if(fileName.equals(rfc + ".txt")) {
 				        	fileOut = rfcFiles[i];
 				        	fileFound = true;
 				        	break;
@@ -308,6 +308,7 @@ public class Client extends Thread {
 					}
 					
 					output.println(sb.toString());
+					System.out.println(sb.toString());
 					output.println("-1");
 					scan.close();
 				} else {

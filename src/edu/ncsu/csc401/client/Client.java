@@ -20,6 +20,7 @@ public class Client extends Thread {
 	private final String VERSION = "P2P-CI/1.0";
 	private final String OS = System.getProperty("os.name");
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		//Try to open a connection to the server
  
@@ -38,7 +39,8 @@ public class Client extends Thread {
         
         Random rand = new Random();
         int listenPort = rand.nextInt(58000) + 2000;
-        new Client(listenPort).start(); //start listening for connections
+        Client listener = new Client(listenPort);
+        listener.start(); //start listening for connections
         
 	    if (serverSocket != null && pw != null && br != null) {
             try {
@@ -55,6 +57,7 @@ public class Client extends Thread {
 		        System.err.println("IOException:  " + e);
 		    }
         }
+	    System.exit(0);
     }
 	
 	private static int listCommands(int listenPort) throws IOException {
@@ -215,14 +218,16 @@ public class Client extends Thread {
 			String contentType = scan.nextLine();
 			
 			toFile = new PrintWriter("rfcs/" + rfc + ".txt", "UTF-8");
+			String title = brClient.readLine();
+			toFile.println(title);
 			while(!(serverResponse = brClient.readLine()).equals("-1")){
-				System.out.println(serverResponse);
+				//System.out.println(serverResponse);
 				toFile.println(serverResponse);
 			}
 			
 			String addNewRfc = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
-					+ hostName + "\nPort: " + lPort + "\nTitle: " + "";
-			pw.println(message);
+					+ hostName + "\nPort: " + lPort + "\nTitle: " + title;
+			pw.println(addNewRfc);
 			
 		} else {
 			System.err.println(serverResponse);
@@ -328,5 +333,6 @@ public class Client extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		this.destroy();
 	}
 }

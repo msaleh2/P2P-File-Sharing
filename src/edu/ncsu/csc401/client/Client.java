@@ -328,6 +328,12 @@ public class Client extends Thread {
 					System.err.println("Error 400: Invalid request");
 					listening = false;
 				}
+				System.out.println("Client: Choose an option");
+		    	System.out.println("Client: 1. ADD RFC TO SERVER");
+		    	System.out.println("Client: 2. LOOKUP RFC");
+		    	System.out.println("Client: 3. LIST ALL RFC'S AVAILABLE");
+		    	System.out.println("Client: 4. GET RFC FROM PEER");
+		    	System.out.println("Client: 5. TERMINATE CONNECTION");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

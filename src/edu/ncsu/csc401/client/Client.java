@@ -13,7 +13,6 @@ public class Client extends Thread {
 	private static Socket serverSocket = null;
 	private static PrintWriter pw = null;
 	private static BufferedReader br = null;
-	//private static String serverHostName = "10.139.243.180";
 	private static String serverHostName;
 	private static String hostName = null;
 	private static int lPort;
@@ -23,8 +22,6 @@ public class Client extends Thread {
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		//Try to open a connection to the server
- 
-        //String hostName = "10.139.83.66";
 		serverHostName = args[0];
         try {
             serverSocket = new Socket(serverHostName, 7733);
@@ -294,16 +291,6 @@ public class Client extends Thread {
 				    }
 					
 					String message;
-					/**
-					if(cVersion.equals(VERSION)) {
-						
-					} else {
-						System.err.println("Error 505: P2P-CI Version Not Supported ");
-						break;
-					}
-					*/
-					
-					
 					message = VERSION + " 200 OK\n";
 					message += "Date: " + new Date().toString() + "\n";
 					message += "OS: " + OS + "\n";

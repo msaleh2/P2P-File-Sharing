@@ -333,6 +333,5 @@ public class Client extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.destroy();
 	}
 }

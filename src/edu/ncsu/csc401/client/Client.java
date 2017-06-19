@@ -316,6 +316,9 @@ public class Client extends Thread {
 					System.out.println(sb.toString());
 					output.println("-1");
 					scan.close();
+					connection.close();
+					output.close();
+					input.close();
 				} else {
 					System.err.println("Error 400: Invalid request");
 					listening = false;

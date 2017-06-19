@@ -101,13 +101,18 @@ public class Client extends Thread {
 	    for (int i = 0; i < rfcFiles.length; i++) {
 	      if (rfcFiles[i].isFile()) {
 	        String rfc = rfcFiles[i].getName();
-	        
+	        Scanner titleScanner = null;
+			try {
+				titleScanner = new Scanner(rfcFiles[i]);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	        //TODO: where to get title?
-	        String title = "";
+	        String title = titleScanner.nextLine(); //first line of file is title
 	        
 	        String message = "ADD RFC " + rfc.substring(0, rfc.length()-4) + " P2P-CI/1.0\nHost: "
 					+ hostName + "\nPort: " + lPort + "\nTitle: " + title;
-			//System.out.println("Client: " + message);
 	        pw.println(message);
 	      }
 	    }

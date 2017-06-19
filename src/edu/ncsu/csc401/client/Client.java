@@ -228,6 +228,7 @@ public class Client extends Thread {
 			String addNewRfc = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
 					+ hostName + "\nPort: " + lPort + "\nTitle: " + title;
 			pw.println(addNewRfc);
+			System.out.println("RFC " + rfc + " successfully downloaded.");
 			
 		} else {
 			System.err.println(serverResponse);
@@ -318,8 +319,9 @@ public class Client extends Thread {
 					}
 					
 					output.println(sb.toString());
-					System.out.println(sb.toString());
+					//System.out.println(sb.toString());
 					output.println("-1");
+					System.out.println("RFC " + rfc + " sent successfully.");
 					scan.close();
 					connection.close();
 					output.close();

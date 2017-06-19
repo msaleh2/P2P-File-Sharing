@@ -1,0 +1,5 @@
+COMPILATION INSTRUCTIONS:
+
+- Import zip file as Eclipse project.
+- On each client, delete a few RFC files from /rfcs in order to have different RFCs on each system.
+- In the run configuration settings for Client.java, specify the server IP address as the only command line argument.

@@ -107,7 +107,7 @@ public class Client extends Thread {
 	        
 	        String message = "ADD RFC " + rfc.substring(0, rfc.length()-4) + " P2P-CI/1.0\nHost: "
 					+ hostName + "\nPort: " + lPort + "\nTitle: " + title;
-			System.out.println("Client: " + message);
+			//System.out.println("Client: " + message);
 	        pw.println(message);
 	      }
 	    }

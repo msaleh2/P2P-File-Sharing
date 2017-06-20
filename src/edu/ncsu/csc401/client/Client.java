@@ -2,8 +2,6 @@ package edu.ncsu.csc401.client;
 
 import java.io.*;
 import java.net.*;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
@@ -19,7 +17,6 @@ public class Client extends Thread {
 	private final String VERSION = "P2P-CI/1.0";
 	private final String OS = System.getProperty("os.name");
 
-	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		//Try to open a connection to the server
 		serverHostName = args[0];
@@ -105,10 +102,8 @@ public class Client extends Thread {
 			try {
 				titleScanner = new Scanner(rfcFiles[i]);
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	        //TODO: where to get title?
 	        String title = titleScanner.nextLine(); //first line of file is title
 	        
 	        String message = "ADD RFC " + rfc.substring(0, rfc.length()-4) + " P2P-CI/1.0\nHost: "
@@ -119,27 +114,25 @@ public class Client extends Thread {
 	}
 	
 	private static void addRFC(Scanner sc, int listenPort) {
-		System.out.println("Client: Enter RFC");
+		System.out.print("Client: Enter RFC: ");
 		int rfc = sc.nextInt();
 		sc.nextLine();
-		System.out.println("Client: Enter Title");
+		System.out.print("Client: Enter Title: ");
 		String title = sc.nextLine();
 		String message = "ADD RFC " + rfc + " P2P-CI/1.0\nHost: "
 				+ hostName + "\nPort: " + listenPort + "\nTitle: " + title;
 		pw.println(message);
-		//System.out.println("Client: You sent this message:\n" + message);
 	}
 
 	private static void lookupRFC(Scanner sc, int listenPort) throws IOException {
-		System.out.println("Client: Enter RFC");
+		System.out.print("Client: Enter RFC: ");
 		int rfc = sc.nextInt();
 		sc.nextLine();
-		System.out.println("Client: Enter Title");
+		System.out.print("Client: Enter Title: ");
 		String title = sc.nextLine();
 		String message = "LOOKUP RFC " + rfc + " P2P-CI/1.0\nHost: " + hostName
 				+ "\nPort: " + listenPort + "\nTitle: " + title;
 		pw.println(message);
-		//System.out.println("Client: You sent this message:\n" + message);
         String serverResponse;
         serverResponse = br.readLine();
         while (!serverResponse.equals("-1")) {
@@ -160,7 +153,6 @@ public class Client extends Thread {
         }
 	}
 	
-	//TODO: clients need to always be listening for peer connections.
 	private static void downloadRFCFromPeer(Scanner sc) throws IOException {
 		//1. open connection to peer at specified port
 		System.out.println("Client: Enter RFC");
@@ -196,7 +188,6 @@ public class Client extends Thread {
 		
 		//3. receive file
 		String serverResponse;
-        //TODO: fix bug
 		serverResponse = brClient.readLine();
 		Scanner scan = new Scanner(serverResponse);
 		String version = scan.next();
@@ -218,7 +209,6 @@ public class Client extends Thread {
 			String title = brClient.readLine();
 			toFile.println(title);
 			while(!(serverResponse = brClient.readLine()).equals("-1")){
-				//System.out.println(serverResponse);
 				toFile.println(serverResponse);
 			}
 			

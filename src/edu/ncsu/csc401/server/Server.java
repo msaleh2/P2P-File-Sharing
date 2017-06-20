@@ -1,13 +1,9 @@
 package edu.ncsu.csc401.server;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,13 +11,13 @@ import java.util.Scanner;
 
 import edu.ncsu.csc401.data.Peer;
 import edu.ncsu.csc401.data.RFC;
+import edu.ncsu.csc401.util.ServerLinkedList;
 
 public class Server extends Thread {
 
-	private final static int PORT_NUMBER = 7733;
 	private static boolean running;
-	private static ArrayList<Peer> peers;
-	private static ArrayList<RFC> rfcIndex;
+	private static ServerLinkedList<Peer> peers;
+	private static ServerLinkedList<RFC> rfcIndex;
 	private Socket cSocket;
 	
 	private static final int OK = 200;
@@ -30,8 +26,8 @@ public class Server extends Thread {
 	private static final int VERSION_NOT_SUPPORTED = 505;
 
 	public static void main(String args[]) {
-		peers = new ArrayList<Peer>();
-		rfcIndex = new ArrayList<RFC>();
+		peers = new ServerLinkedList<Peer>();
+		rfcIndex = new ServerLinkedList<RFC>();
 		ServerSocket masterSocket = null;
 		running = true;
 		try {
@@ -120,6 +116,7 @@ public class Server extends Thread {
 							}
 						}
 						rfcIndex.add(new RFC(rfc, rfcTitle, p));
+						System.out.println("RFC " + rfc + " added by " + hostName);
 
 					} else if (cmd.equals("LOOKUP")) {
 						scan.next();
@@ -143,7 +140,7 @@ public class Server extends Thread {
 						
 						ArrayList<RFC> search = new ArrayList<RFC>();
 						for (int i = 0; i < rfcIndex.size(); i++) {
-							if (rfcIndex.get(i).getRfcNumber() == rfc) {
+							if (rfcIndex.get(i).getRfcNumber() == rfc && rfcIndex.get(i).getTitle().toLowerCase().equals(rfcTitle.toLowerCase())) {
 								search.add(rfcIndex.get(i));
 							}							
 						}
@@ -153,12 +150,12 @@ public class Server extends Thread {
 							output.println(version + " " + OK + " OK");
 							for(int j = 0; j < search.size(); j++) {
 								output.println("RFC " + search.get(j).getRfcNumber() + " "
-										+ search.get(j).getTitle() + " " 
-										+ search.get(j).getPeer().getHostName() + " " 
+										+ search.get(j).getTitle() + "\tHost: " 
+										+ search.get(j).getPeer().getHostName() + "\tPort: " 
 										+ search.get(j).getPeer().getPort());
 							}
 						}
-						System.out.println("Returned " + search.size() + " result");
+						System.out.println("Returned " + search.size() + " results");
 						output.println("-1");
 					} else if (cmd.equals("LIST")) {
 						scan.next();
@@ -180,12 +177,12 @@ public class Server extends Thread {
 							output.println(version + " " + OK + " OK");
 							for(int j = 0; j < rfcIndex.size(); j++) {
 								output.println("RFC " + rfcIndex.get(j).getRfcNumber() + " "
-										+ rfcIndex.get(j).getTitle() + " " 
-										+ rfcIndex.get(j).getPeer().getHostName() + " " 
+										+ rfcIndex.get(j).getTitle() + "\tHost: " 
+										+ rfcIndex.get(j).getPeer().getHostName() + "\tPort: " 
 										+ rfcIndex.get(j).getPeer().getPort());
 							}
 						}
-						System.out.println("Returned " + rfcIndex.size() + " result");
+						System.out.println("Returned " + rfcIndex.size() + " results");
 						output.println("-1");
 					} else if(cmd.equals("CLOSE")) {
 						hostName = scan.next();
@@ -193,13 +190,14 @@ public class Server extends Thread {
 						
 					} else {
 						System.err.println("Invalid Command.");
+						output.println("Error: " + BAD_REQUEST + "Bad Request");
 						cSocket.close();
 						connected = false;
 					}
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Problem with connection.");
+			System.err.println(e.getMessage());
 			try {
 				output.close();
 				input.close();
